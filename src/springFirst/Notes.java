@@ -164,5 +164,144 @@ framework (prewritten code that contains solution for all common prblms in the p
 ----------------------
 -Open source
 
+
+----------------------------------------------------------------------
+April 18
+There are two types of classes:
+  ----------------
+  1. Pojo = i.v + setters + getters 
+  2.Business/Bean/Service =  i.v + setters + getters  + business logic
+  
+  3.Pojo obj has realtime data/ customer i/p data or cust outcome data
+    Bean objs doesnot contain relatime data
+    
+  4.Pojo obj has to be created for every request
+   Bean Objs should be created only one time (i.e. first request)
+   
+  5. Pojo obj  will be deleted once response is given to customer,
+  but bean objs will be available.....
+  6.Resolving dependencies is mandatory for bean objs
+	bean obj to be created by springs
+    pojo obj to be created by developer
+    
+      Problems:
+    1. To resolve chain of  dependencies for a bean object.
+    2. Maintain single obj for the bean classes through out the application.
+    
+     solution:
+-------------------------
+  	1.Springs will create the object for all the Bean classes...
+	ex: ProuctController, ProductService, ProductHelper, ProductDAO
+	
+	2.Springs also resolves the dependencies for every bean obj..
+	3. Spring container will manage the single bean objs for every Bean class..
+	Spring container contains pool of bean objs...
+	4. Developer has to get the bean obj from springs and calls the respective methods....
+    
+    How to specify to springs what are the Bean classes?
+	a) Springs.xml
+	b) Annotations
+	
+	Springs.xml
+	-----------
+	->We need write a <bean> tag for very Bean class..
+  	ProuctController, ProductService, ProductHelper, ProductDAO
+  	ex1 is the package name
+  	<beans>
+	<bean id="control" class="ex1.ProductController" />
+ 	<bean id="service" class="ex1.ProductService" />
+  	<bean id="dao" class="ex1.ProductDao" />
+  	<bean id="helper" class="ex1.ProductHelper" />
+  	</bean>
+	every bean tag has bean id + class name
+	
+	
+	 Syntax for getting bean obj:
+---------------------------------
+  	1.Create applicationcontext obj using springs.xml
+  	2.This obj should be created only once.....
+	3.using this obj develper can get any bean obj 
+	
+	
+	1. Create app context obj
+ApplicationContext context = new ClassPathXmlApplicationContext("file:src/ex1/springs.xml");
+
+2.get bean obj using bean id
+ProductController controlObj = (ProductController) context.getBean("control");
+ProductService serviceObj = (ProductService) context.getBean("service");
+ProductHelper helperObj = (ProductHelper) context.getBean("helper");
+ProductDAO daoObj = (ProductDAO) context.getBean("dao");
+
+*********************************************************************************
+Bean class has dependencies:
+-----------------------------------
+  
+  -> setter injection
+  -> constr injection
+                                           Java class                                                   Springs.xml
+  --------------------|-----------------------------------------------------------------------------------------------------------------
+  setter injection    |     Need setter methods for all dependencies                     Write property tag under the bean tag.
+                      |  public void setDbName(String dbName) {                           <bean id="aService"  class="setterInject1.AccountService">
+    					this.dbName = dbName;																						<property name="dbName" value="oracle" />
+    				|		} 																															 </bean>
+----------------------|---------------------------------------------------------------------------------------------------------------------  
+  constr injection    |    Need constr that has all dependencies as arguments           Write constructor-arg tag under the bean tag.
+  					|				public UserService(String userName, String pass) {         <bean id="uService"  class="constrInject1.UserService">
+					|					this.userName = userName;                                         <constructor-arg value="system"/>
+					|					this.pass = pass;                                                 <constructor-arg value="user@1234"/>
+											|				}                                                          </bean>
+  --------------------|----------------------------------------------------------------------------------------------------------------------
+  
+                        
+public class AccountService {
+private String dbName;
+
+	public String getDbName() {
+		return dbName;
+	}
+
+	public void setDbName(String dbName) {
+		this.dbName = dbName;
+	}
+}
+
+
+
+public class UserService {
+	//db info
+	String userName;
+	String pass;
+
+	public UserService(String userName, String pass) {
+		this.userName = userName;
+		this.pass = pass;
+	}
+}
+-----------------------------------------------
+public class Person{
+  
+  private int id;
+  public Person(){
+    
+  }
+  public Person(int id){
+     this.id= id
+  }
+  public void setId(int id){
+    this.id= id
+  }
+  
+}
+
+
+approach1:(set the data using setter method)
+--------------------------------------------------------
+ Person p1 = new Person();
+p.setId(200);
+
+
+approach2:(set the data using during obj creation)
+--------------------------------------------------------
+Person p1 = new Person(200);
  */
 }
